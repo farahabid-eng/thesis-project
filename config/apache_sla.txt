@@ -1,0 +1,68 @@
+SLA - Service Apache
+
+Accord de Niveau de Service (SLA)
+Services d’Infrastructure Serveur Web Apache
+1. Engagement de Disponibilité Mensuelle
+Le Fournisseur s’engage à maintenir un Pourcentage de Temps de Disponibilité Mensuelle d’au moins
+99,9%. Si cet engagement n’est pas respecté, le Client est éligible à un Crédit de Service tel que défini ci-dessous.
+
+2. Définitions Techniques (basées sur les logs)
+Pour le calcul de la disponibilité, les définitions suivantes s’appliquent :
+— Erreur de Liaison (mod jk) : Toute occurrence où le module workerEnv entre dans un état d’erreur
+critique (États 6, 7, 8 ou 9) empêchant la communication avec le backend.
+— Échec de Scoreboard : Incapacité du processus parent à localiser un processus enfant (Can’t find
+child in scoreboard), entraı̂nant une dégradation du traitement des requêtes.
+— Indisponibilité : Une période de 5 minutes consécutives durant laquelle le taux d’erreur mod jk dépasse
+10% des requêtes totales enregistrées.
+
+3. Objectifs de Niveau de Service (SLO)
+Indicateur (SLI)
+
+Objectif (SLO)
+
+Méthode de Mesure
+
+Disponibilité du Worker
+
+> 99,9%
+
+Succès de workerEnv.init() ok
+
+Stabilité des Processus
+
+< 0,1% d’erreurs
+
+Absence de Can’t find child
+
+Délai de Récupération (MTTR)
+
+< 15 minutes
+
+Temps entre État d’erreur et init ok
+
+4. Crédits de Service
+Pourcentage de Disponibilité Mensuelle
+
+Pourcentage de Crédit de Service
+
+< 99,9% mais ≥ 99,0%
+
+10%
+
+< 99,0% mais ≥ 95,0%
+
+25%
+
+< 95,0%
+
+50%
+
+5. Exclusions de Responsabilité
+Le SLA ne s’applique pas aux indisponibilités causées par :
+— Des erreurs de configuration client (ex : Directory index forbidden by rule).
+— Des attaques par déni de service (DDoS) identifiées par des pics d’IP uniques dans les logs.
+— La maintenance planifiée communiquée 48h à l’avance.
+
+1
+
+
