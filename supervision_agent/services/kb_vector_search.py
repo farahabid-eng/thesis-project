@@ -1,80 +1,65 @@
-import math
-import re
-from typing import List, Dict, Tuple, Optional
-from ..models.rca import RCA
-from ..models.anomaly import Anomaly
+from typing import List, Dict, Tuple
+from dataclasses import dataclass
+
+@dataclass
+class KBResult:
+    scenario_id: str
+    summary: str
+    similarity: float
 
 class KBVectorSearch:
     def __init__(self):
-        # A small set of predefined incident scenarios (MVP KB)
-        self.scenarios = [
+        # MVP: Mock vector database with pre-defined scenarios
+        self.knowledge_base = [
             {
-                "id": "SCN-001",
-                "description": "Critical Node failure due to edge power loss",
-                "category": "INFRASTRUCTURE",
-                "localization": "EdgeNode",
-                "probable_causes": ["Power supply failure", "UPS battery depletion"],
-                "causal_chain": ["Power loss -> Node shutdown"],
-                "imputed_metrics": ["NodeAvailability", "PowerStatus"],
-                "keywords": {"availability", "node", "power", "shutdown", "0%"}
+                "id": "KB-001",
+                "vector": [1.0, 0.0, 0.0], # Simplified representation
+                "summary": "Edge node offline due to network partition. NodeAvailability dropped to 0.",
+                "keywords": ["NodeAvailability", "0", "HardDown"]
             },
             {
-                "id": "SCN-003",
-                "description": "Critical mod_jk worker error (State 6-9)",
-                "category": "APPLICATION",
-                "localization": "workerEnv",
-                "probable_causes": ["Backend timeout", "Max connections reached", "Circuit breaker open"],
-                "causal_chain": ["Connection failure -> mod_jk Error State 6"],
-                "imputed_metrics": ["ModJkErrorRate", "BackendResponseTime"],
-                "keywords": {"mod_jk", "workerenv", "state", "6", "error", "backend"}
-            },
-            {
-                "id": "SCN-002",
-                "description": "Network congestion on edge gateway",
-                "category": "NETWORK",
-                "localization": "Gateway",
-                "probable_causes": ["High traffic volume", "DDoS attack"],
-                "causal_chain": ["Congestion -> Packet loss -> Timeout"],
-                "imputed_metrics": ["Latency", "PacketLoss"],
-                "keywords": {"latency", "network", "slow", "packet", "timeout"}
+                "id": "KB-002",
+                "vector": [0.0, 1.0, 0.0],
+                "summary": "High latency caused by database lock. ResponseTime > 200ms.",
+                "keywords": ["ResponseTime", "Latency"]
             }
         ]
+        self.similarity_threshold = 0.7
 
-    def _get_similarity(self, query_keywords: set, scenario_keywords: set) -> float:
-        intersection = query_keywords.intersection(scenario_keywords)
-        union = query_keywords.union(scenario_keywords)
-        return len(intersection) / len(union) if union else 0
-
-    def lookup(self, anomaly: Anomaly, threshold: float = 0.2) -> Optional[Dict]:
-        # Extract keywords from anomaly for simple vector-ish search
-        query = {str(anomaly.observedValue)}
+    def search(self, query_text: str) -> List[KBResult]:
+        """
+        Simulates vector similarity search.
+        In a real system, 'query_text' would be embedded and compared via cosine similarity.
+        Here, we use keyword overlap as a deterministic MVP proxy for 'similarity'.
+        """
+        results = []
         
-        # Split metric and source into component words
-        for item in [anomaly.metric, anomaly.source, anomaly.type]:
-            if item:
-                # Better splitting for CamelCase and underscores
-                words = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\b)|[0-9]+', item)
-                words = [w.lower() for w in words]
-                query.update(words)
-                query.add(item.lower())
-
-        # Specific mappings to align with KB
-        if "modjk" in query or "mod_jk" in query:
-            query.add("mod_jk")
-            query.add("error")
+        # MVP Proxy Logic: Check for keyword presence in query
+        # If 'NodeAvailability' and '0' in query => High match for KB-001
         
-        if "6" in query: query.add("state")
-
-        best_match = None
-        max_score = 0
-        
-        for scenario in self.scenarios:
-            score = self._get_similarity(query, scenario["keywords"])
-            if score > max_score:
-                max_score = score
-                best_match = scenario
-
-        if max_score >= threshold:
-            print(f"[KB] Found match with score {max_score:.2f}: {best_match['id']}")
-            return best_match
-        return None
+        # Mock calculation:
+        for item in self.knowledge_base:
+            score = 0.0
+            hits = 0
+            for kw in item["keywords"]:
+                if kw in query_text:
+                    hits += 1
+            
+            if len(item["keywords"]) > 0:
+                score = hits / len(item["keywords"])
+            
+            # Artificial boost for exact scenario match in MVP
+            unique_key = item["keywords"][0] # e.g. NodeAvailability
+            if unique_key in query_text:
+                if score < 0.8: score = 0.8 # Ensure it passes threshold for relevant metric
+                
+            if score >= self.similarity_threshold:
+                results.append(KBResult(
+                    scenario_id=item["id"],
+                    summary=item["summary"],
+                    similarity=score
+                ))
+                
+        # Sort by similarity desc
+        results.sort(key=lambda x: x.similarity, reverse=True)
+        return results

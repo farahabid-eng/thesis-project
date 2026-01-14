@@ -1,10 +1,11 @@
 from datetime import datetime
 
-def get_now() -> datetime:
-    return datetime.now()
-
-def format_timestamp(dt: datetime) -> str:
-    return dt.strftime("%Y-%m-%%d %H:%M:%S")
-
-def get_duration_seconds(start: datetime, end: datetime) -> float:
-    return (end - start).total_seconds()
+class TimeUtils:
+    @staticmethod
+    def now_str() -> str:
+        return datetime.now().isoformat()
+        
+    @staticmethod
+    def format_duration(seconds: int) -> str:
+        minutes, seconds = divmod(seconds, 60)
+        return f"{minutes}m {seconds}s"

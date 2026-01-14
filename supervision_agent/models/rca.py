@@ -1,19 +1,15 @@
-from dataclasses import dataclass
-from typing import List, Optional
+from dataclasses import dataclass, field
+from typing import List, Any
 from .anomaly import Anomaly
 
 @dataclass
 class RCA:
-    A: Anomaly
-    FailureLocalization: str
-    FailureCategory: str
-    ProbableCauses: List[str]
-    CausalChain: List[str]
-    ConfidenceScore: float
-    FailureSummary: str
-    ImputedMetrics: List[str]
-    P: str  # Probable solution or recommendation (implied by P in the provided list)
-
-    def __repr__(self):
-        return (f"RCA<Localization={self.FailureLocalization}, "
-                f"Category={self.FailureCategory}, Confidence={self.ConfidenceScore}>")
+    anomaly: Anomaly
+    failure_localization: str
+    failure_category: str
+    probable_causes: List[str]
+    causal_chain: List[str]
+    confidence_score: float
+    failure_summary: str
+    imputed_metrics: List[Any] = field(default_factory=list)
+    p_factor: float = 0.0 # "P" from SOP model requirement

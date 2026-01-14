@@ -1,18 +1,13 @@
 from dataclasses import dataclass
+from typing import Any
 from datetime import datetime
-from typing import Optional, Any
 
 @dataclass
 class Anomaly:
     metric: str
-    observedValue: Any
-    expectedValue: Any
+    observed_value: Any
+    expected_value: float
     operator: str
-    type: str
+    anomaly_type: str # e.g., "Breach", "Unavailable"
     source: str
-    detectedAt: datetime
-
-    def __repr__(self):
-        return (f"Anomaly<metric={self.metric}, observed={self.observedValue}, "
-                f"expected={self.expectedValue}, operator={self.operator}, "
-                f"type={self.type}, source={self.source}, at={self.detectedAt}>")
+    detected_at: datetime
