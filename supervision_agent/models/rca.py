@@ -1,15 +1,14 @@
 from dataclasses import dataclass, field
-from typing import List, Any
-from .anomaly import Anomaly
+from typing import List
 
 @dataclass
 class RCA:
-    anomaly: Anomaly
+    anomaly_signature: str  # A
     failure_localization: str
     failure_category: str
     probable_causes: List[str]
     causal_chain: List[str]
     confidence_score: float
     failure_summary: str
-    imputed_metrics: List[Any] = field(default_factory=list)
-    p_factor: float = 0.0 # "P" from SOP model requirement
+    imputed_metrics: List[str]
+    prevention_plan: str = "" # P

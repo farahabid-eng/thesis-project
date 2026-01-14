@@ -1,10 +1,13 @@
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 @dataclass
 class SLAClause:
+    sla_clause_id: str
     metric: str
-    operator: str  # ">", "<", ">=", "<="
+    operator: str
     threshold: float
-    breach_window_seconds: int
-    sla_id: str = "SLA-GENERIC"
+    window_minutes: int
+    exclusions: List[str] = field(default_factory=list)
+    confidence: float = 0.0
+    justification: str = ""
